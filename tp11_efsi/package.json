@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^3.1.1",
     "expo": "~57.0.24",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
+    "react-hook-form": "^7.88.0",
     "react-native": "0.86.3"
   },
   "scripts": {
