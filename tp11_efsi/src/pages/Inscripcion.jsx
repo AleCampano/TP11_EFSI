@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Text, ScrollView, Button, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, Button, ActivityIndicator, StyleSheet } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import CampoFormulario from '../components/CampoFormulario'
@@ -39,15 +39,21 @@ function Inscripcion() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <Text style={styles.titulo}>Festival Sonido Sur 🎸</Text>
+      <Text style={styles.titulo}>Festival Sonido Sur Schettano67 PROD. 🎸</Text>
       <Text style={styles.subtitulo}>Formulario de Inscripción</Text>
 
+      {/* Nombre: Solo letras y mínimo 3 caracteres */}
       <Controller
         control={control}
         name="nombre"
         rules={{
           required: 'El nombre es obligatorio',
           minLength: { value: 3, message: 'Debe tener al menos 3 caracteres' },
+          maxLength: {value: 20, message: 'Debe tener menos de 20 caracteres'},
+          pattern: {
+            value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+            message: 'Solo se permiten letras',
+          },
         }}
         render={({ field: { onChange, value } }) => (
           <CampoFormulario
@@ -60,6 +66,7 @@ function Inscripcion() {
         )}
       />
 
+      {/* Email: Formato correcto con @ y . */}
       <Controller
         control={control}
         name="email"
@@ -83,13 +90,18 @@ function Inscripcion() {
         )}
       />
 
+      {/* Edad: Solo números, entre 1 y 100 */}
       <Controller
         control={control}
         name="edad"
         rules={{
           required: 'La edad es obligatoria',
-          min: { value: 12, message: 'Debes tener al menos 12 años' },
-          max: { value: 99, message: 'Edad máxima 99 años' },
+          min: { value: 1, message: 'La edad mínima es 1' },
+          max: { value: 100, message: 'La edad máxima es 100' },
+          pattern: {
+            value: /^[0-9]+$/,
+            message: 'Solo se permiten números',
+          },
         }}
         render={({ field: { onChange, value } }) => (
           <CampoFormulario
@@ -103,27 +115,20 @@ function Inscripcion() {
         )}
       />
 
-      <Controller
-        control={control}
-        name="tipo"
-        rules={{ required: 'Escribe General o VIP' }}
-        render={({ field: { onChange, value } }) => (
-          <CampoFormulario
-            label="Tipo de Entrada (General / VIP)"
-            placeholder="General o VIP"
-            onChangeText={onChange}
-            value={value}
-            error={errors.tipo}
-          />
-        )}
-      />
-
+      {/* Teléfono: Obligatorio, exactamente 10 números */}
       <Controller
         control={control}
         name="telefono"
+        rules={{
+          required: 'El teléfono es obligatorio',
+          pattern: {
+            value: /^\d{10}$/,
+            message: 'Debe ingresar exactamente 10 números',
+          },
+        }}
         render={({ field: { onChange, value } }) => (
           <CampoFormulario
-            label="Teléfono (Opcional)"
+            label="Teléfono (10 números)"
             placeholder="Ej. 1123456789"
             keyboardType="phone-pad"
             onChangeText={onChange}
@@ -133,15 +138,46 @@ function Inscripcion() {
         )}
       />
 
+      {/* Tipo de entrada: Selección con 2 botones */}
+      <Controller
+        control={control}
+        name="tipo"
+        rules={{ required: 'Debes seleccionar un tipo de entrada' }}
+        render={({ field: { onChange, value } }) => (
+          <View style={styles.selectorContainer}>
+            <Text style={styles.selectorLabel}>Tipo de Entrada</Text>
+            <View style={styles.botonesRow}>
+              <View style={styles.btnTipo}>
+                <Button
+                  title="General"
+                  color={value === 'General' ? '#16a34a' : '#333333'}
+                  onPress={() => onChange('General')}
+                />
+              </View>
+              <View style={styles.btnTipo}>
+                <Button
+                  title="VIP"
+                  color={value === 'VIP' ? '#16a34a' : '#333333'}
+                  onPress={() => onChange('VIP')}
+                />
+              </View>
+            </View>
+            {errors.tipo && <Text style={styles.errorText}>{errors.tipo.message}</Text>}
+          </View>
+        )}
+      />
+
       {cargando ? (
-        <ActivityIndicator color="#16a34a" size="large" />
+        <ActivityIndicator color="#16a34a" size="large" style={{ marginTop: 15 }} />
       ) : (
-        <Button
-          title="Confirmar Inscripción"
-          color="#16a34a"
-          onPress={handleSubmit(onSubmit)}
-          disabled={!isValid}
-        />
+        <View style={{ marginTop: 15 }}>
+          <Button
+            title="Confirmar Inscripción"
+            color="#16a34a"
+            onPress={handleSubmit(onSubmit)}
+            disabled={!isValid}
+          />
+        </View>
       )}
     </ScrollView>
   )
@@ -168,6 +204,28 @@ const styles = StyleSheet.create({
     color: '#999999',
     textAlign: 'center',
     marginBottom: 24,
+  },
+  selectorContainer: {
+    marginBottom: 16,
+  },
+  selectorLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  botonesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  btnTipo: {
+    flex: 1,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 12,
+    marginTop: 6,
   },
 })
 
